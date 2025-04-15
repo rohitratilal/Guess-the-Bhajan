@@ -5,54 +5,77 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Guess the Bhajan</title>
     <style>
+        :root {
+            --primary: #4a6fa5;
+            --secondary: #ff6b6b;
+            --dark: #333;
+            --light: #f8f9fa;
+            --success: #51cf66;
+            --warning: #fcc419;
+            --muted: #adb5bd;
+        }
+        
         * {
             box-sizing: border-box;
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            margin: 0;
+            padding: 0;
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
         }
         
         body {
-            margin: 0;
-            padding: 0;
-            background-color: #f5f5f5;
-            color: #333;
+            background-color: var(--light);
+            color: var(--dark);
+            min-height: 100vh;
             display: flex;
             flex-direction: column;
             align-items: center;
-            min-height: 100vh;
-            background-image: linear-gradient(to bottom, #ff9933, #ffffff, #138808);
+            padding: 20px;
+            line-height: 1.6;
         }
         
         .container {
             width: 100%;
-            max-width: 500px;
-            padding: 20px;
+            max-width: 400px;
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+        }
+        
+        header {
             text-align: center;
+            margin-bottom: 10px;
         }
         
         h1 {
-            color: #138808;
-            margin-bottom: 30px;
-            text-shadow: 1px 1px 2px rgba(0,0,0,0.1);
+            font-size: 24px;
+            font-weight: 700;
+            color: var(--primary);
+            margin-bottom: 5px;
         }
         
-        .player-container {
-            background-color: white;
-            border-radius: 15px;
+        .subtitle {
+            color: var(--muted);
+            font-size: 14px;
+        }
+        
+        .card {
+            background: white;
+            border-radius: 16px;
             padding: 20px;
-            box-shadow: 0 4px 8px rgba(0,0,0,0.1);
-            margin-bottom: 20px;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.05);
         }
         
         .cover-art {
-            width: 200px;
-            height: 200px;
-            border-radius: 10px;
+            width: 180px;
+            height: 180px;
+            border-radius: 12px;
             margin: 0 auto 20px;
-            background-color: #eee;
+            background: linear-gradient(135deg, #f5f7fa 0%, #e4e8eb 100%);
             display: flex;
             align-items: center;
             justify-content: center;
             overflow: hidden;
+            box-shadow: 0 8px 24px rgba(0,0,0,0.1);
         }
         
         .cover-art img {
@@ -62,204 +85,266 @@
         }
         
         .cover-art .icon {
-            font-size: 50px;
-            color: #888;
+            font-size: 48px;
+            color: var(--muted);
+            opacity: 0.7;
         }
         
         .player-controls {
             display: flex;
             justify-content: center;
             align-items: center;
-            margin-bottom: 20px;
+            gap: 15px;
+            margin: 20px 0;
         }
         
-        .play-btn {
-            width: 60px;
-            height: 60px;
-            border-radius: 50%;
-            background-color: #138808;
-            color: white;
+        .btn {
             border: none;
-            font-size: 24px;
+            background: none;
+            cursor: pointer;
             display: flex;
             align-items: center;
             justify-content: center;
-            margin: 0 15px;
-            cursor: pointer;
-            box-shadow: 0 4px 8px rgba(0,0,0,0.2);
+            transition: all 0.2s;
         }
         
-        .skip-btn {
-            background: none;
-            border: none;
+        .btn-primary {
+            width: 56px;
+            height: 56px;
+            border-radius: 50%;
+            background-color: var(--primary);
+            color: white;
             font-size: 24px;
-            color: #138808;
-            cursor: pointer;
+            box-shadow: 0 4px 12px rgba(74, 111, 165, 0.3);
+        }
+        
+        .btn-primary:hover {
+            transform: scale(1.05);
+        }
+        
+        .btn-secondary {
+            color: var(--primary);
+            font-size: 20px;
+            opacity: 0.8;
+        }
+        
+        .btn-secondary:hover {
+            opacity: 1;
         }
         
         .progress-container {
             width: 100%;
-            height: 5px;
-            background-color: #ddd;
-            border-radius: 5px;
-            margin-bottom: 20px;
-            cursor: pointer;
+            height: 4px;
+            background-color: #e9ecef;
+            border-radius: 2px;
+            margin: 20px 0;
+            overflow: hidden;
         }
         
         .progress {
             height: 100%;
-            background-color: #138808;
-            border-radius: 5px;
+            background-color: var(--primary);
             width: 0%;
+            border-radius: 2px;
+            transition: width 0.1s linear;
         }
         
-        .time-info {
+        .timer {
             display: flex;
-            justify-content: space-between;
-            font-size: 12px;
-            color: #888;
-            margin-bottom: 20px;
+            justify-content: center;
+            align-items: center;
+            gap: 10px;
+            margin: 15px 0;
+            font-size: 14px;
         }
         
-        .options-container {
-            background-color: white;
-            border-radius: 15px;
-            padding: 20px;
-            box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+        .timer-circle {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            border: 3px solid var(--primary);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 600;
         }
         
-        .option-btn {
-            display: block;
-            width: 100%;
-            padding: 15px;
-            margin: 10px 0;
-            border: 2px solid #ddd;
-            border-radius: 10px;
+        .timer-text {
+            color: var(--muted);
+        }
+        
+        .options {
+            display: grid;
+            grid-template-columns: 1fr;
+            gap: 12px;
+        }
+        
+        .option {
+            padding: 14px 20px;
+            border-radius: 12px;
             background-color: white;
-            font-size: 16px;
+            border: 1px solid #e9ecef;
+            text-align: center;
             cursor: pointer;
-            transition: all 0.3s;
+            transition: all 0.2s;
+            font-weight: 500;
         }
         
-        .option-btn:hover {
-            background-color: #f0f0f0;
+        .option:hover {
+            border-color: var(--primary);
+            transform: translateY(-2px);
         }
         
-        .option-btn.correct {
-            background-color: #4CAF50;
+        .option.correct {
+            background-color: var(--success);
             color: white;
-            border-color: #4CAF50;
+            border-color: var(--success);
         }
         
-        .option-btn.wrong {
-            background-color: #f44336;
+        .option.wrong {
+            background-color: var(--secondary);
             color: white;
-            border-color: #f44336;
+            border-color: var(--secondary);
         }
         
         .score-container {
-            margin-top: 20px;
-            font-size: 18px;
-            font-weight: bold;
-            color: #138808;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-top: 10px;
+        }
+        
+        .score {
+            font-weight: 700;
+            color: var(--primary);
+        }
+        
+        .hint-container {
+            margin-top: 15px;
+            padding: 12px 15px;
+            background-color: #f8f9fa;
+            border-radius: 8px;
+            font-size: 14px;
+            color: var(--muted);
+            display: none;
         }
         
         .hint-btn {
-            background-color: #ff9933;
-            color: white;
+            background: none;
             border: none;
-            padding: 10px 20px;
-            border-radius: 20px;
-            margin-top: 15px;
-            font-size: 14px;
+            color: var(--primary);
+            font-size: 13px;
+            font-weight: 500;
+            text-decoration: underline;
             cursor: pointer;
+            margin-top: 10px;
+            display: inline-block;
         }
         
-        .hint-text {
-            margin-top: 10px;
-            font-style: italic;
-            color: #666;
-            min-height: 20px;
+        .next-btn {
+            width: 100%;
+            padding: 14px;
+            border-radius: 12px;
+            background-color: var(--primary);
+            color: white;
+            border: none;
+            font-weight: 600;
+            margin-top: 15px;
+            cursor: pointer;
+            display: none;
+        }
+        
+        .next-btn:hover {
+            opacity: 0.9;
         }
         
         .game-over {
             text-align: center;
-            padding: 20px;
+            display: none;
+        }
+        
+        .game-over h2 {
+            margin-bottom: 10px;
+            color: var(--primary);
+        }
+        
+        .final-score {
+            font-size: 48px;
+            font-weight: 700;
+            color: var(--primary);
+            margin: 20px 0;
         }
         
         .restart-btn {
-            background-color: #138808;
+            width: 100%;
+            padding: 16px;
+            border-radius: 12px;
+            background-color: var(--primary);
             color: white;
             border: none;
-            padding: 15px 30px;
-            border-radius: 30px;
-            font-size: 16px;
-            cursor: pointer;
+            font-weight: 600;
             margin-top: 20px;
-        }
-        
-        .volume-control {
-            width: 100%;
-            margin: 15px 0;
+            cursor: pointer;
         }
         
         @media (max-width: 400px) {
             .cover-art {
-                width: 150px;
-                height: 150px;
-            }
-            
-            .play-btn {
-                width: 50px;
-                height: 50px;
-                font-size: 20px;
+                width: 160px;
+                height: 160px;
             }
         }
     </style>
 </head>
 <body>
     <div class="container">
-        <h1>Guess the Bhajan</h1>
+        <header>
+            <h1>Guess the Bhajan</h1>
+            <div class="subtitle">Listen to the instrumental and guess the bhajan</div>
+        </header>
         
         <div id="game-screen">
-            <div class="player-container">
+            <div class="card">
                 <div class="cover-art" id="cover-art">
                     <div class="icon">🎵</div>
+                </div>
+                
+                <div class="player-controls">
+                    <button class="btn btn-secondary" id="prev-btn">↻</button>
+                    <button class="btn btn-primary" id="play-btn">▶</button>
+                    <button class="btn btn-secondary" id="next-btn">⏭</button>
                 </div>
                 
                 <div class="progress-container" id="progress-container">
                     <div class="progress" id="progress"></div>
                 </div>
                 
-                <div class="time-info">
-                    <span id="current-time">0:00</span>
-                    <span id="duration">0:00</span>
+                <div class="timer">
+                    <div class="timer-circle" id="timer">30</div>
+                    <div class="timer-text">seconds remaining</div>
                 </div>
-                
-                <div class="player-controls">
-                    <button class="skip-btn" id="prev-btn">⏮</button>
-                    <button class="play-btn" id="play-btn">▶</button>
-                    <button class="skip-btn" id="next-btn">⏭</button>
-                </div>
-                
-                <input type="range" class="volume-control" id="volume" min="0" max="1" step="0.1" value="0.7">
-                
-                <button class="hint-btn" id="hint-btn">Hint</button>
-                <div class="hint-text" id="hint-text"></div>
             </div>
             
-            <div class="options-container" id="options-container">
-                <!-- Options will be inserted here by JavaScript -->
+            <div class="card">
+                <div class="options" id="options-container">
+                    <!-- Options will be inserted here by JavaScript -->
+                </div>
+                
+                <button class="hint-btn" id="hint-btn">Need a hint?</button>
+                <div class="hint-container" id="hint-text"></div>
+                
+                <button class="next-btn" id="next-round-btn">Next Bhajan</button>
             </div>
             
             <div class="score-container">
-                Score: <span id="score">0</span>
+                <span>Score</span>
+                <span class="score" id="score">0</span>
             </div>
         </div>
         
-        <div id="game-over-screen" class="game-over" style="display: none;">
+        <div id="game-over-screen" class="game-over">
             <h2>Game Over!</h2>
-            <p>Your final score: <span id="final-score">0</span></p>
+            <div class="final-score" id="final-score">0</div>
+            <p>Thanks for playing Guess the Bhajan!</p>
             <button class="restart-btn" id="restart-btn">Play Again</button>
         </div>
     </div>
@@ -269,45 +354,38 @@
         const bhajans = [
             {
                 title: "Vaishnav Jan To",
-                audio: "https://www.example.com/audio/vaishnav-jan-to.mp3",
-                cover: "https://www.example.com/images/vaishnav-jan-to.jpg",
+                instrumental: "https://example.com/audio/vaishnav-jan-to-instrumental.mp3",
+                vocal: "https://example.com/audio/vaishnav-jan-to-vocal.mp3",
+                cover: "https://example.com/images/vaishnav-jan-to.jpg",
                 hint: "This bhajan was a favorite of Mahatma Gandhi"
             },
             {
                 title: "Jai Jalaram Jai Jalaram",
-                audio: "https://www.example.com/audio/jai-jalaram.mp3",
-                cover: "https://www.example.com/images/jai-jalaram.jpg",
+                instrumental: "https://example.com/audio/jai-jalaram-instrumental.mp3",
+                vocal: "https://example.com/audio/jai-jalaram-vocal.mp3",
+                cover: "https://example.com/images/jai-jalaram.jpg",
                 hint: "Dedicated to Saint Jalaram Bapa"
             },
             {
                 title: "Aavo Padharo Mhare Des",
-                audio: "https://www.example.com/audio/aavo-padharo.mp3",
-                cover: "https://www.example.com/images/aavo-padharo.jpg",
+                instrumental: "https://example.com/audio/aavo-padharo-instrumental.mp3",
+                vocal: "https://example.com/audio/aavo-padharo-vocal.mp3",
+                cover: "https://example.com/images/aavo-padharo.jpg",
                 hint: "Welcoming song from Gujarat"
             },
             {
                 title: "Tara Vina Shyam Na Aave",
-                audio: "https://www.example.com/audio/tara-vina-shyam.mp3",
-                cover: "https://www.example.com/images/tara-vina-shyam.jpg",
+                instrumental: "https://example.com/audio/tara-vina-shyam-instrumental.mp3",
+                vocal: "https://example.com/audio/tara-vina-shyam-vocal.mp3",
+                cover: "https://example.com/images/tara-vina-shyam.jpg",
                 hint: "Devotional song about Krishna"
             },
             {
                 title: "Mor Bani Thangat Kare",
-                audio: "https://www.example.com/audio/mor-bani.mp3",
-                cover: "https://www.example.com/images/mor-bani.jpg",
+                instrumental: "https://example.com/audio/mor-bani-instrumental.mp3",
+                vocal: "https://example.com/audio/mor-bani-vocal.mp3",
+                cover: "https://example.com/images/mor-bani.jpg",
                 hint: "Popular garba devotional song"
-            },
-            {
-                title: "Aarti Kunj Bihari Ki",
-                audio: "https://www.example.com/audio/aarti-kunj-bihari.mp3",
-                cover: "https://www.example.com/images/aarti-kunj-bihari.jpg",
-                hint: "Aarti dedicated to Lord Krishna"
-            },
-            {
-                title: "Prabhu Ji Tum Chandan Hum Pani",
-                audio: "https://www.example.com/audio/prabhu-ji-tum.mp3",
-                cover: "https://www.example.com/images/prabhu-ji-tum.jpg",
-                hint: "Devotional song about the devotee's relationship with God"
             }
         ];
 
@@ -318,7 +396,12 @@
         let isPlaying = false;
         let gameOver = false;
         let usedBhajanIndices = [];
-        const totalRounds = 5; // Game ends after 5 rounds
+        let timer;
+        let timeLeft = 30;
+        let isAnswerCorrect = false;
+        const totalRounds = 5;
+        const clipDuration = 10; // 10 second clip
+        const rewardDuration = 30; // 30 second reward
 
         // DOM elements
         const playBtn = document.getElementById('play-btn');
@@ -326,14 +409,13 @@
         const nextBtn = document.getElementById('next-btn');
         const progressContainer = document.getElementById('progress-container');
         const progress = document.getElementById('progress');
-        const currentTimeEl = document.getElementById('current-time');
-        const durationEl = document.getElementById('duration');
         const coverArt = document.getElementById('cover-art');
         const optionsContainer = document.getElementById('options-container');
         const scoreEl = document.getElementById('score');
         const hintBtn = document.getElementById('hint-btn');
         const hintText = document.getElementById('hint-text');
-        const volumeControl = document.getElementById('volume');
+        const timerEl = document.getElementById('timer');
+        const nextRoundBtn = document.getElementById('next-round-btn');
         const gameScreen = document.getElementById('game-screen');
         const gameOverScreen = document.getElementById('game-over-screen');
         const finalScoreEl = document.getElementById('final-score');
@@ -352,7 +434,9 @@
 
         // Load a new bhajan for guessing
         function loadNewBhajan() {
-            hintText.textContent = '';
+            isAnswerCorrect = false;
+            hintText.style.display = 'none';
+            nextRoundBtn.style.display = 'none';
             
             // If we've played enough rounds, end game
             if (usedBhajanIndices.length >= totalRounds) {
@@ -383,10 +467,8 @@
                 audio.currentTime = 0;
             }
             
-            // In a real app, you would use the actual audio file
-            // For this demo, we'll just simulate it
-            audio = new Audio(currentBhajan.audio);
-            audio.volume = volumeControl.value;
+            // For demo purposes, we'll simulate audio
+            audio = new Audio(currentBhajan.instrumental);
             
             // Set cover art
             coverArt.innerHTML = `<img src="${currentBhajan.cover}" alt="Cover Art" onerror="this.parentNode.innerHTML='<div class=\\'icon\\'>🎵</div>'">`;
@@ -407,8 +489,8 @@
             // Display options
             optionsContainer.innerHTML = '';
             options.forEach(option => {
-                const button = document.createElement('button');
-                button.className = 'option-btn';
+                const button = document.createElement('div');
+                button.className = 'option';
                 button.textContent = option;
                 button.addEventListener('click', () => checkAnswer(option, currentBhajan.title));
                 optionsContainer.appendChild(button);
@@ -416,34 +498,80 @@
             
             // Set up audio event listeners
             audio.addEventListener('timeupdate', updateProgress);
-            audio.addEventListener('ended', () => {
-                isPlaying = false;
-                playBtn.textContent = '▶';
-            });
+            audio.addEventListener('ended', onClipEnded);
             
             // Reset play button
             isPlaying = false;
             playBtn.textContent = '▶';
             
-            // Update duration (simulated)
-            durationEl.textContent = '1:30';
+            // Reset timer
+            resetTimer();
+            
+            // Play the 10-second clip automatically
+            playClip();
+        }
+
+        // Play the 10-second clip
+        function playClip() {
+            if (audio) {
+                audio.currentTime = 0;
+                audio.play();
+                isPlaying = true;
+                playBtn.textContent = '❚❚';
+                
+                // Automatically pause after 10 seconds
+                setTimeout(() => {
+                    if (audio && !isAnswerCorrect) {
+                        audio.pause();
+                        isPlaying = false;
+                        playBtn.textContent = '▶';
+                        startTimer();
+                    }
+                }, clipDuration * 1000);
+            }
+        }
+
+        // Play the full vocal version (30 seconds)
+        function playReward() {
+            if (audio) {
+                const currentBhajan = bhajans[currentBhajanIndex];
+                audio.src = currentBhajan.vocal;
+                audio.currentTime = 0;
+                audio.play();
+                isPlaying = true;
+                playBtn.textContent = '❚❚';
+                
+                // Automatically pause after 30 seconds
+                setTimeout(() => {
+                    if (audio) {
+                        audio.pause();
+                        isPlaying = false;
+                        playBtn.textContent = '▶';
+                    }
+                }, rewardDuration * 1000);
+            }
         }
 
         // Check if selected answer is correct
         function checkAnswer(selectedOption, correctAnswer) {
-            if (gameOver) return;
+            if (gameOver || isAnswerCorrect) return;
             
-            const options = document.querySelectorAll('.option-btn');
+            clearInterval(timer);
+            const options = document.querySelectorAll('.option');
             let correctButton;
             
             options.forEach(button => {
-                button.disabled = true;
+                button.style.pointerEvents = 'none';
                 if (button.textContent === correctAnswer) {
                     correctButton = button;
                     if (selectedOption === correctAnswer) {
                         button.classList.add('correct');
                         score += 10;
                         updateScore();
+                        isAnswerCorrect = true;
+                        
+                        // Play the full vocal version
+                        playReward();
                     }
                 } else if (button.textContent === selectedOption && selectedOption !== correctAnswer) {
                     button.classList.add('wrong');
@@ -455,13 +583,78 @@
                 correctButton.classList.add('correct');
             }
             
-            // Load next bhajan after delay
-            setTimeout(loadNewBhajan, 2000);
+            // Show next button
+            nextRoundBtn.style.display = 'block';
         }
 
         // Update score display
         function updateScore() {
             scoreEl.textContent = score;
+        }
+
+        // Update progress bar
+        function updateProgress() {
+            if (audio) {
+                const progressPercent = (audio.currentTime / audio.duration) * 100;
+                progress.style.width = `${progressPercent}%`;
+            }
+        }
+
+        // Handle clip ended
+        function onClipEnded() {
+            isPlaying = false;
+            playBtn.textContent = '▶';
+            
+            if (!isAnswerCorrect) {
+                startTimer();
+            }
+        }
+
+        // Timer functions
+        function startTimer() {
+            clearInterval(timer);
+            timeLeft = 30;
+            updateTimerDisplay();
+            
+            timer = setInterval(() => {
+                timeLeft--;
+                updateTimerDisplay();
+                
+                if (timeLeft <= 0) {
+                    clearInterval(timer);
+                    // Time's up - reveal answer
+                    const options = document.querySelectorAll('.option');
+                    const currentBhajan = bhajans[currentBhajanIndex];
+                    
+                    options.forEach(button => {
+                        button.style.pointerEvents = 'none';
+                        if (button.textContent === currentBhajan.title) {
+                            button.classList.add('correct');
+                        }
+                    });
+                    
+                    nextRoundBtn.style.display = 'block';
+                }
+            }, 1000);
+        }
+
+        function resetTimer() {
+            clearInterval(timer);
+            timeLeft = 30;
+            updateTimerDisplay();
+        }
+
+        function updateTimerDisplay() {
+            timerEl.textContent = timeLeft;
+            
+            // Change color when time is running out
+            if (timeLeft <= 10) {
+                timerEl.style.color = 'var(--secondary)';
+                timerEl.style.borderColor = 'var(--secondary)';
+            } else {
+                timerEl.style.color = 'var(--dark)';
+                timerEl.style.borderColor = 'var(--primary)';
+            }
         }
 
         // End the game
@@ -477,67 +670,66 @@
             }
         }
 
-        // Update progress bar
-        function updateProgress() {
-            if (audio) {
-                const { duration, currentTime } = audio;
-                const progressPercent = (currentTime / duration) * 100;
-                progress.style.width = `${progressPercent}%`;
-                
-                // Format time
-                const currentMinutes = Math.floor(currentTime / 60);
-                const currentSeconds = Math.floor(currentTime % 60).toString().padStart(2, '0');
-                currentTimeEl.textContent = `${currentMinutes}:${currentSeconds}`;
-            }
-        }
-
-        // Set progress when clicked on progress bar
-        function setProgress(e) {
-            if (!audio) return;
-            const width = this.clientWidth;
-            const clickX = e.offsetX;
-            const duration = audio.duration;
-            audio.currentTime = (clickX / width) * duration;
-        }
-
         // Event listeners
         playBtn.addEventListener('click', () => {
             if (!audio) return;
             
             if (isPlaying) {
                 audio.pause();
+                isPlaying = false;
+                playBtn.textContent = '▶';
+                
+                // Pause timer if it's running
+                if (!isAnswerCorrect && timeLeft < 30) {
+                    clearInterval(timer);
+                }
             } else {
-                audio.play();
+                if (isAnswerCorrect) {
+                    // If answer was correct, we're playing the full version
+                    audio.play();
+                } else {
+                    // Otherwise replay the 10-second clip
+                    playClip();
+                }
+                isPlaying = true;
+                playBtn.textContent = '❚❚';
+                
+                // Resume timer if it was paused
+                if (!isAnswerCorrect && timeLeft < 30) {
+                    startTimer();
+                }
             }
-            
-            isPlaying = !isPlaying;
-            playBtn.textContent = isPlaying ? '❚❚' : '▶';
         });
 
         prevBtn.addEventListener('click', () => {
             if (!audio) return;
             audio.currentTime = 0;
-        });
-
-        nextBtn.addEventListener('click', loadNewBhajan);
-
-        progressContainer.addEventListener('click', setProgress);
-
-        hintBtn.addEventListener('click', () => {
-            if (gameOver || !audio) return;
-            const currentBhajan = bhajans[currentBhajanIndex];
-            hintText.textContent = currentBhajan.hint;
-            
-            // Deduct points for using hint
-            if (score > 0) {
-                score -= 2;
-                updateScore();
+            if (!isPlaying) {
+                audio.play();
+                isPlaying = true;
+                playBtn.textContent = '❚❚';
             }
         });
 
-        volumeControl.addEventListener('input', () => {
-            if (audio) {
-                audio.volume = volumeControl.value;
+        nextBtn.addEventListener('click', () => {
+            if (!isAnswerCorrect) {
+                // Skip the current bhajan
+                loadNewBhajan();
+            }
+        });
+
+        nextRoundBtn.addEventListener('click', loadNewBhajan);
+
+        hintBtn.addEventListener('click', () => {
+            if (gameOver || !audio || isAnswerCorrect) return;
+            const currentBhajan = bhajans[currentBhajanIndex];
+            hintText.textContent = currentBhajan.hint;
+            hintText.style.display = 'block';
+            
+            // Deduct points for using hint
+            if (score >= 3) {
+                score -= 3;
+                updateScore();
             }
         });
 
