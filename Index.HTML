@@ -1,0 +1,550 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Guess the Bhajan</title>
+    <style>
+        * {
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+        
+        body {
+            margin: 0;
+            padding: 0;
+            background-color: #f5f5f5;
+            color: #333;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            min-height: 100vh;
+            background-image: linear-gradient(to bottom, #ff9933, #ffffff, #138808);
+        }
+        
+        .container {
+            width: 100%;
+            max-width: 500px;
+            padding: 20px;
+            text-align: center;
+        }
+        
+        h1 {
+            color: #138808;
+            margin-bottom: 30px;
+            text-shadow: 1px 1px 2px rgba(0,0,0,0.1);
+        }
+        
+        .player-container {
+            background-color: white;
+            border-radius: 15px;
+            padding: 20px;
+            box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+            margin-bottom: 20px;
+        }
+        
+        .cover-art {
+            width: 200px;
+            height: 200px;
+            border-radius: 10px;
+            margin: 0 auto 20px;
+            background-color: #eee;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            overflow: hidden;
+        }
+        
+        .cover-art img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+        
+        .cover-art .icon {
+            font-size: 50px;
+            color: #888;
+        }
+        
+        .player-controls {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+        
+        .play-btn {
+            width: 60px;
+            height: 60px;
+            border-radius: 50%;
+            background-color: #138808;
+            color: white;
+            border: none;
+            font-size: 24px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0 15px;
+            cursor: pointer;
+            box-shadow: 0 4px 8px rgba(0,0,0,0.2);
+        }
+        
+        .skip-btn {
+            background: none;
+            border: none;
+            font-size: 24px;
+            color: #138808;
+            cursor: pointer;
+        }
+        
+        .progress-container {
+            width: 100%;
+            height: 5px;
+            background-color: #ddd;
+            border-radius: 5px;
+            margin-bottom: 20px;
+            cursor: pointer;
+        }
+        
+        .progress {
+            height: 100%;
+            background-color: #138808;
+            border-radius: 5px;
+            width: 0%;
+        }
+        
+        .time-info {
+            display: flex;
+            justify-content: space-between;
+            font-size: 12px;
+            color: #888;
+            margin-bottom: 20px;
+        }
+        
+        .options-container {
+            background-color: white;
+            border-radius: 15px;
+            padding: 20px;
+            box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+        }
+        
+        .option-btn {
+            display: block;
+            width: 100%;
+            padding: 15px;
+            margin: 10px 0;
+            border: 2px solid #ddd;
+            border-radius: 10px;
+            background-color: white;
+            font-size: 16px;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+        
+        .option-btn:hover {
+            background-color: #f0f0f0;
+        }
+        
+        .option-btn.correct {
+            background-color: #4CAF50;
+            color: white;
+            border-color: #4CAF50;
+        }
+        
+        .option-btn.wrong {
+            background-color: #f44336;
+            color: white;
+            border-color: #f44336;
+        }
+        
+        .score-container {
+            margin-top: 20px;
+            font-size: 18px;
+            font-weight: bold;
+            color: #138808;
+        }
+        
+        .hint-btn {
+            background-color: #ff9933;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 20px;
+            margin-top: 15px;
+            font-size: 14px;
+            cursor: pointer;
+        }
+        
+        .hint-text {
+            margin-top: 10px;
+            font-style: italic;
+            color: #666;
+            min-height: 20px;
+        }
+        
+        .game-over {
+            text-align: center;
+            padding: 20px;
+        }
+        
+        .restart-btn {
+            background-color: #138808;
+            color: white;
+            border: none;
+            padding: 15px 30px;
+            border-radius: 30px;
+            font-size: 16px;
+            cursor: pointer;
+            margin-top: 20px;
+        }
+        
+        .volume-control {
+            width: 100%;
+            margin: 15px 0;
+        }
+        
+        @media (max-width: 400px) {
+            .cover-art {
+                width: 150px;
+                height: 150px;
+            }
+            
+            .play-btn {
+                width: 50px;
+                height: 50px;
+                font-size: 20px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Guess the Bhajan</h1>
+        
+        <div id="game-screen">
+            <div class="player-container">
+                <div class="cover-art" id="cover-art">
+                    <div class="icon">🎵</div>
+                </div>
+                
+                <div class="progress-container" id="progress-container">
+                    <div class="progress" id="progress"></div>
+                </div>
+                
+                <div class="time-info">
+                    <span id="current-time">0:00</span>
+                    <span id="duration">0:00</span>
+                </div>
+                
+                <div class="player-controls">
+                    <button class="skip-btn" id="prev-btn">⏮</button>
+                    <button class="play-btn" id="play-btn">▶</button>
+                    <button class="skip-btn" id="next-btn">⏭</button>
+                </div>
+                
+                <input type="range" class="volume-control" id="volume" min="0" max="1" step="0.1" value="0.7">
+                
+                <button class="hint-btn" id="hint-btn">Hint</button>
+                <div class="hint-text" id="hint-text"></div>
+            </div>
+            
+            <div class="options-container" id="options-container">
+                <!-- Options will be inserted here by JavaScript -->
+            </div>
+            
+            <div class="score-container">
+                Score: <span id="score">0</span>
+            </div>
+        </div>
+        
+        <div id="game-over-screen" class="game-over" style="display: none;">
+            <h2>Game Over!</h2>
+            <p>Your final score: <span id="final-score">0</span></p>
+            <button class="restart-btn" id="restart-btn">Play Again</button>
+        </div>
+    </div>
+
+    <script>
+        // Bhajan database
+        const bhajans = [
+            {
+                title: "Vaishnav Jan To",
+                audio: "https://www.example.com/audio/vaishnav-jan-to.mp3",
+                cover: "https://www.example.com/images/vaishnav-jan-to.jpg",
+                hint: "This bhajan was a favorite of Mahatma Gandhi"
+            },
+            {
+                title: "Jai Jalaram Jai Jalaram",
+                audio: "https://www.example.com/audio/jai-jalaram.mp3",
+                cover: "https://www.example.com/images/jai-jalaram.jpg",
+                hint: "Dedicated to Saint Jalaram Bapa"
+            },
+            {
+                title: "Aavo Padharo Mhare Des",
+                audio: "https://www.example.com/audio/aavo-padharo.mp3",
+                cover: "https://www.example.com/images/aavo-padharo.jpg",
+                hint: "Welcoming song from Gujarat"
+            },
+            {
+                title: "Tara Vina Shyam Na Aave",
+                audio: "https://www.example.com/audio/tara-vina-shyam.mp3",
+                cover: "https://www.example.com/images/tara-vina-shyam.jpg",
+                hint: "Devotional song about Krishna"
+            },
+            {
+                title: "Mor Bani Thangat Kare",
+                audio: "https://www.example.com/audio/mor-bani.mp3",
+                cover: "https://www.example.com/images/mor-bani.jpg",
+                hint: "Popular garba devotional song"
+            },
+            {
+                title: "Aarti Kunj Bihari Ki",
+                audio: "https://www.example.com/audio/aarti-kunj-bihari.mp3",
+                cover: "https://www.example.com/images/aarti-kunj-bihari.jpg",
+                hint: "Aarti dedicated to Lord Krishna"
+            },
+            {
+                title: "Prabhu Ji Tum Chandan Hum Pani",
+                audio: "https://www.example.com/audio/prabhu-ji-tum.mp3",
+                cover: "https://www.example.com/images/prabhu-ji-tum.jpg",
+                hint: "Devotional song about the devotee's relationship with God"
+            }
+        ];
+
+        // Game variables
+        let currentBhajanIndex;
+        let score = 0;
+        let audio;
+        let isPlaying = false;
+        let gameOver = false;
+        let usedBhajanIndices = [];
+        const totalRounds = 5; // Game ends after 5 rounds
+
+        // DOM elements
+        const playBtn = document.getElementById('play-btn');
+        const prevBtn = document.getElementById('prev-btn');
+        const nextBtn = document.getElementById('next-btn');
+        const progressContainer = document.getElementById('progress-container');
+        const progress = document.getElementById('progress');
+        const currentTimeEl = document.getElementById('current-time');
+        const durationEl = document.getElementById('duration');
+        const coverArt = document.getElementById('cover-art');
+        const optionsContainer = document.getElementById('options-container');
+        const scoreEl = document.getElementById('score');
+        const hintBtn = document.getElementById('hint-btn');
+        const hintText = document.getElementById('hint-text');
+        const volumeControl = document.getElementById('volume');
+        const gameScreen = document.getElementById('game-screen');
+        const gameOverScreen = document.getElementById('game-over-screen');
+        const finalScoreEl = document.getElementById('final-score');
+        const restartBtn = document.getElementById('restart-btn');
+
+        // Initialize game
+        function initGame() {
+            score = 0;
+            gameOver = false;
+            usedBhajanIndices = [];
+            updateScore();
+            gameScreen.style.display = 'block';
+            gameOverScreen.style.display = 'none';
+            loadNewBhajan();
+        }
+
+        // Load a new bhajan for guessing
+        function loadNewBhajan() {
+            hintText.textContent = '';
+            
+            // If we've played enough rounds, end game
+            if (usedBhajanIndices.length >= totalRounds) {
+                endGame();
+                return;
+            }
+            
+            // Find a bhajan that hasn't been used yet
+            let availableBhajans = bhajans.filter((_, index) => !usedBhajanIndices.includes(index));
+            
+            if (availableBhajans.length === 0) {
+                // If all bhajans have been used, reset (for longer play)
+                usedBhajanIndices = [];
+                availableBhajans = bhajans;
+            }
+            
+            // Select random bhajan
+            currentBhajanIndex = Math.floor(Math.random() * availableBhajans.length);
+            const currentBhajan = availableBhajans[currentBhajanIndex];
+            
+            // Add to used indices (using original index)
+            const originalIndex = bhajans.findIndex(b => b.title === currentBhajan.title);
+            usedBhajanIndices.push(originalIndex);
+            
+            // Set up audio
+            if (audio) {
+                audio.pause();
+                audio.currentTime = 0;
+            }
+            
+            // In a real app, you would use the actual audio file
+            // For this demo, we'll just simulate it
+            audio = new Audio(currentBhajan.audio);
+            audio.volume = volumeControl.value;
+            
+            // Set cover art
+            coverArt.innerHTML = `<img src="${currentBhajan.cover}" alt="Cover Art" onerror="this.parentNode.innerHTML='<div class=\\'icon\\'>🎵</div>'">`;
+            
+            // Generate options (1 correct + 3 random incorrect)
+            const options = [currentBhajan.title];
+            while (options.length < 4) {
+                const randomIndex = Math.floor(Math.random() * bhajans.length);
+                const randomBhajan = bhajans[randomIndex].title;
+                if (!options.includes(randomBhajan)) {
+                    options.push(randomBhajan);
+                }
+            }
+            
+            // Shuffle options
+            options.sort(() => Math.random() - 0.5);
+            
+            // Display options
+            optionsContainer.innerHTML = '';
+            options.forEach(option => {
+                const button = document.createElement('button');
+                button.className = 'option-btn';
+                button.textContent = option;
+                button.addEventListener('click', () => checkAnswer(option, currentBhajan.title));
+                optionsContainer.appendChild(button);
+            });
+            
+            // Set up audio event listeners
+            audio.addEventListener('timeupdate', updateProgress);
+            audio.addEventListener('ended', () => {
+                isPlaying = false;
+                playBtn.textContent = '▶';
+            });
+            
+            // Reset play button
+            isPlaying = false;
+            playBtn.textContent = '▶';
+            
+            // Update duration (simulated)
+            durationEl.textContent = '1:30';
+        }
+
+        // Check if selected answer is correct
+        function checkAnswer(selectedOption, correctAnswer) {
+            if (gameOver) return;
+            
+            const options = document.querySelectorAll('.option-btn');
+            let correctButton;
+            
+            options.forEach(button => {
+                button.disabled = true;
+                if (button.textContent === correctAnswer) {
+                    correctButton = button;
+                    if (selectedOption === correctAnswer) {
+                        button.classList.add('correct');
+                        score += 10;
+                        updateScore();
+                    }
+                } else if (button.textContent === selectedOption && selectedOption !== correctAnswer) {
+                    button.classList.add('wrong');
+                }
+            });
+            
+            // Highlight correct answer if wrong was selected
+            if (selectedOption !== correctAnswer && correctButton) {
+                correctButton.classList.add('correct');
+            }
+            
+            // Load next bhajan after delay
+            setTimeout(loadNewBhajan, 2000);
+        }
+
+        // Update score display
+        function updateScore() {
+            scoreEl.textContent = score;
+        }
+
+        // End the game
+        function endGame() {
+            gameOver = true;
+            finalScoreEl.textContent = score;
+            gameScreen.style.display = 'none';
+            gameOverScreen.style.display = 'block';
+            
+            if (audio) {
+                audio.pause();
+                audio.currentTime = 0;
+            }
+        }
+
+        // Update progress bar
+        function updateProgress() {
+            if (audio) {
+                const { duration, currentTime } = audio;
+                const progressPercent = (currentTime / duration) * 100;
+                progress.style.width = `${progressPercent}%`;
+                
+                // Format time
+                const currentMinutes = Math.floor(currentTime / 60);
+                const currentSeconds = Math.floor(currentTime % 60).toString().padStart(2, '0');
+                currentTimeEl.textContent = `${currentMinutes}:${currentSeconds}`;
+            }
+        }
+
+        // Set progress when clicked on progress bar
+        function setProgress(e) {
+            if (!audio) return;
+            const width = this.clientWidth;
+            const clickX = e.offsetX;
+            const duration = audio.duration;
+            audio.currentTime = (clickX / width) * duration;
+        }
+
+        // Event listeners
+        playBtn.addEventListener('click', () => {
+            if (!audio) return;
+            
+            if (isPlaying) {
+                audio.pause();
+            } else {
+                audio.play();
+            }
+            
+            isPlaying = !isPlaying;
+            playBtn.textContent = isPlaying ? '❚❚' : '▶';
+        });
+
+        prevBtn.addEventListener('click', () => {
+            if (!audio) return;
+            audio.currentTime = 0;
+        });
+
+        nextBtn.addEventListener('click', loadNewBhajan);
+
+        progressContainer.addEventListener('click', setProgress);
+
+        hintBtn.addEventListener('click', () => {
+            if (gameOver || !audio) return;
+            const currentBhajan = bhajans[currentBhajanIndex];
+            hintText.textContent = currentBhajan.hint;
+            
+            // Deduct points for using hint
+            if (score > 0) {
+                score -= 2;
+                updateScore();
+            }
+        });
+
+        volumeControl.addEventListener('input', () => {
+            if (audio) {
+                audio.volume = volumeControl.value;
+            }
+        });
+
+        restartBtn.addEventListener('click', initGame);
+
+        // Start the game
+        initGame();
+    </script>
+</body>
+</html>
