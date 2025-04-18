@@ -149,42 +149,6 @@
             transition: width 0.1s linear;
         }
         
-        .timer-container {
-            width: 100%;
-            height: 6px;
-            background-color: #e9ecef;
-            border-radius: 3px;
-            margin: 20px 0;
-            overflow: hidden;
-        }
-        
-        .timer-progress {
-            height: 100%;
-            background-color: var(--primary);
-            width: 100%;
-            border-radius: 3px;
-            transform-origin: left;
-            transform: scaleX(1);
-            transition: transform 1s linear;
-        }
-        
-        .timer-controls {
-            display: flex;
-            justify-content: center;
-            gap: 15px;
-            margin-bottom: 15px;
-        }
-        
-        .timer-btn {
-            padding: 6px 12px;
-            border-radius: 20px;
-            background-color: var(--primary);
-            color: white;
-            font-size: 12px;
-            border: none;
-            cursor: pointer;
-        }
-        
         .options {
             display: grid;
             grid-template-columns: 1fr;
@@ -327,15 +291,6 @@
                 <div class="progress-container" id="progress-container">
                     <div class="progress" id="progress"></div>
                 </div>
-                
-                <div class="timer-controls">
-                    <button class="timer-btn" id="start-timer-btn">Start Timer</button>
-                    <button class="timer-btn" id="pause-timer-btn">Pause Timer</button>
-                </div>
-                
-                <div class="timer-container">
-                    <div class="timer-progress" id="timer-progress"></div>
-                </div>
             </div>
             
             <div class="card">
@@ -359,13 +314,8 @@
         const bhajans = [
   {
     title: "Hal Tane Hal Saurashtra Batavu",
-    instrumental: "https://raw.githubusercontent.com/rohitratilal/Guess-the-Bhajan/main/Instrument/Hal Tane Hal Saurashtra Batavu _.mp3",
+    instrumental: "https://raw.githubusercontent.com/rohitratilal/Guess-the-Bhajan/main/Instrument/Hal Tane Hal Saurashtra Batavu.mp3",
     vocal: "https://raw.githubusercontent.com/rohitratilal/Guess-the-Bhajan/main/Vocal/Hal Tane Hal Saurashtra Batavu.mp3"
-  },
-  {
-    title: "Jagma Motu Nam Che Jogi Jalaram Che",
-    instrumental: "https://raw.githubusercontent.com/rohitratilal/Guess-the-Bhajan/main/Instrument/Jagma Motu Nam Che Jogi Jalaram Che.mp3",
-    vocal: "https://raw.githubusercontent.com/rohitratilal/Guess-the-Bhajan/main/Vocal/Jagma Motu Nam Che Jogi Jalaram Che.mp3"
   },
   {
     title: "Hari Tu Gadu Maru Kya Lai Jay",
@@ -373,39 +323,29 @@
     vocal: "https://raw.githubusercontent.com/rohitratilal/Guess-the-Bhajan/main/Vocal/Hari Tu Gadu Maru Kya Lai Jay.mp3"
   },
   {
-    title: "TU RANGAI JANE RANG MA",
-    instrumental: "https://raw.githubusercontent.com/rohitratilal/Guess-the-Bhajan/main/Instrument/TU RANGAI JANE RANG MA.mp3",
+    title: "Helo Maro Sambhlo Ranuja",
+    instrumental: "https://raw.githubusercontent.com/rohitratilal/Guess-the-Bhajan/main/Instrument/Helo Maro Sambhlo Ranuja.mp3",
+    vocal: "https://raw.githubusercontent.com/rohitratilal/Guess-the-Bhajan/main/Vocal/Helo Maro Sambhlo Ranuja.mp3"
+  },
+  {
+    title: "Jagma Motu Nam Che Jogi Jalaram Che",
+    instrumental: "https://raw.githubusercontent.com/rohitratilal/Guess-the-Bhajan/main/Instrument/Jagma Motu Nam Che Jogi Jalaram Che.mp3",
+    vocal: "https://raw.githubusercontent.com/rohitratilal/Guess-the-Bhajan/main/Vocal/Jagma Motu Nam Che Jogi Jalaram Che.mp3"
+  },
+  {
+    title: "Jiv Shane Fare Chhe Guman Ma",
+    instrumental: "https://raw.githubusercontent.com/rohitratilal/Guess-the-Bhajan/main/Instrument/Jiv Shane Fare Chhe Guman Ma.mp3",
+    vocal: "https://raw.githubusercontent.com/rohitratilal/Guess-the-Bhajan/main/Vocal/Jiv Shane Fare Chhe Guman Ma.mp3"
+  },
+  {
+    title: "Karmano Sangathi Rana Maru Koi Nathi",
+    instrumental: "https://raw.githubusercontent.com/rohitratilal/Guess-the-Bhajan/main/Instrument/Karmano Sangathi Rana Maru Koi Nathi.mp3",
+    vocal: "https://raw.githubusercontent.com/rohitratilal/Guess-the-Bhajan/main/Vocal/Karmano Sangathi Rana Maru Koi Nathi.mp3"
+  },
+  {
+    title: "Tu Rangai Jane Rang Ma",
+    instrumental: "https://raw.githubusercontent.com/rohitratilal/Guess-the-Bhajan/main/Instrument/Tu rangai jane ne rang ma.mp3",
     vocal: "https://raw.githubusercontent.com/rohitratilal/Guess-the-Bhajan/main/Vocal/TU RANGAI JANE RANG MA.mp3"
-  },
-  {
-    title: "Helo Maro Sambhlo Ranuja_30Secs",
-    instrumental: "https://raw.githubusercontent.com/rohitratilal/Guess-the-Bhajan/main/Instrument/Helo Maro Sambhlo Ranuja_30Secs.mp3",
-    vocal: "https://raw.githubusercontent.com/rohitratilal/Guess-the-Bhajan/main/Vocal/Helo Maro Sambhlo Ranuja_30Secs.mp3"
-  },
-  {
-    title: "Karmano Sangathi Rana Maru Koi Nathi_Full song",
-    instrumental: "https://raw.githubusercontent.com/rohitratilal/Guess-the-Bhajan/main/Instrument/Karmano Sangathi Rana Maru Koi Nathi_Full song.mp3",
-    vocal: "https://raw.githubusercontent.com/rohitratilal/Guess-the-Bhajan/main/Vocal/Karmano Sangathi Rana Maru Koi Nathi_Full song.mp3"
-  },
-  {
-    title: "Jiv Shane Fare Chhe Guman Ma _ full song",
-    instrumental: "https://raw.githubusercontent.com/rohitratilal/Guess-the-Bhajan/main/Instrument/Jiv Shane Fare Chhe Guman Ma _ full song.mp3",
-    vocal: "https://raw.githubusercontent.com/rohitratilal/Guess-the-Bhajan/main/Vocal/Jiv Shane Fare Chhe Guman Ma _ full song.mp3"
-  },
-  {
-    title: "Helo Maro Sambhlo Ranuja_17 secs",
-    instrumental: "https://raw.githubusercontent.com/rohitratilal/Guess-the-Bhajan/main/Instrument/Helo Maro Sambhlo Ranuja_17 secs.mp3",
-    vocal: "https://raw.githubusercontent.com/rohitratilal/Guess-the-Bhajan/main/Vocal/Helo Maro Sambhlo Ranuja_17 secs.mp3"
-  },
-  {
-    title: "Karmano Sangathi Rana Maru Koi Nathi __17 secs",
-    instrumental: "https://raw.githubusercontent.com/rohitratilal/Guess-the-Bhajan/main/Instrument/Karmano Sangathi Rana Maru Koi Nathi __17 secs.mp3",
-    vocal: "https://raw.githubusercontent.com/rohitratilal/Guess-the-Bhajan/main/Vocal/Karmano Sangathi Rana Maru Koi Nathi __17 secs.mp3"
-  },
-  {
-    title: "Jiv Shane Fare Chhe Guman Ma_16sec",
-    instrumental: "https://raw.githubusercontent.com/rohitratilal/Guess-the-Bhajan/main/Instrument/Jiv Shane Fare Chhe Guman Ma_16sec.mp3",
-    vocal: "https://raw.githubusercontent.com/rohitratilal/Guess-the-Bhajan/main/Vocal/Jiv Shane Fare Chhe Guman Ma_16sec.mp3"
   }
 ];
 
@@ -436,15 +376,12 @@
         // Game variables
         let currentBhajanIndex;
         let audio;
+        let vocalAudio;
         let isPlaying = false;
         let gameOver = false;
         let usedBhajanIndices = [];
-        let timerInterval;
-        let timeLeft = 30;
-        let isTimerRunning = false;
         const totalRounds = 5;
-        const clipDuration = 10; // 10 second clip
-        const rewardDuration = 30; // 30 second reward
+        let canSelectAnswer = false;
 
         // DOM elements
         const playBtn = document.getElementById('play-btn');
@@ -459,9 +396,6 @@
         const gameOverScreen = document.getElementById('game-over-screen');
         const restartBtn = document.getElementById('restart-btn');
         const introCard = document.getElementById('intro-card');
-        const startTimerBtn = document.getElementById('start-timer-btn');
-        const pauseTimerBtn = document.getElementById('pause-timer-btn');
-        const timerProgress = document.getElementById('timer-progress');
 
         // Show intro card and then fade it out
         function showIntro() {
@@ -486,8 +420,8 @@
 
         // Load a new bhajan for guessing
         function loadNewBhajan() {
-            // Reset timer
-            resetTimer();
+            // Reset state
+            canSelectAnswer = false;
             
             // If we've played enough rounds, end game
             if (usedBhajanIndices.length >= totalRounds) {
@@ -518,7 +452,6 @@
                 audio.currentTime = 0;
             }
             
-            // For demo purposes, we'll simulate audio
             audio = new Audio(currentBhajan.instrumental);
             
             // Set up audio event listeners
@@ -526,6 +459,7 @@
             audio.addEventListener('ended', () => {
                 isPlaying = false;
                 playBtn.textContent = '▶';
+                canSelectAnswer = true; // Allow answer selection only after song ends
             });
             
             // Reset play button
@@ -552,7 +486,11 @@
                 const button = document.createElement('div');
                 button.className = 'option';
                 button.textContent = option;
-                button.addEventListener('click', () => checkAnswer(option, currentBhajan.title));
+                button.addEventListener('click', () => {
+                    if (canSelectAnswer) {
+                        checkAnswer(option, currentBhajan.title, currentBhajan.vocal);
+                    }
+                });
                 optionsContainer.appendChild(button);
             });
             
@@ -561,11 +499,10 @@
         }
 
         // Check if selected answer is correct
-        function checkAnswer(selectedOption, correctAnswer) {
-            if (gameOver) return;
+        function checkAnswer(selectedOption, correctAnswer, vocalUrl) {
+            if (gameOver || !canSelectAnswer) return;
             
-            // Stop timer
-            pauseTimer();
+            canSelectAnswer = false; // Prevent further selections
             
             const options = document.querySelectorAll('.option');
             let correctButton;
@@ -576,6 +513,8 @@
                     correctButton = button;
                     if (selectedOption === correctAnswer) {
                         button.classList.add('correct');
+                        // Play vocal version if correct
+                        playVocalVersion(vocalUrl);
                     }
                 } else if (button.textContent === selectedOption && selectedOption !== correctAnswer) {
                     button.classList.add('wrong');
@@ -591,74 +530,28 @@
             nextRoundBtn.style.display = 'block';
         }
 
+        // Play vocal version of the bhajan
+        function playVocalVersion(vocalUrl) {
+            if (vocalAudio) {
+                vocalAudio.pause();
+                vocalAudio.currentTime = 0;
+            }
+            
+            vocalAudio = new Audio(vocalUrl);
+            vocalAudio.play();
+            
+            vocalAudio.addEventListener('ended', () => {
+                // When vocal ends, enable next round
+                nextRoundBtn.style.display = 'block';
+            });
+        }
+
         // Update progress bar
         function updateProgress() {
             if (audio) {
                 const progressPercent = (audio.currentTime / audio.duration) * 100;
                 progress.style.width = `${progressPercent}%`;
             }
-        }
-
-        // Timer functions
-        function startTimer() {
-            if (isTimerRunning) return;
-            
-            isTimerRunning = true;
-            timeLeft = 30;
-            updateTimerDisplay();
-            
-            // Reset the animation
-            timerProgress.style.transition = 'none';
-            timerProgress.style.transform = 'scaleX(1)';
-            void timerProgress.offsetWidth; // Trigger reflow
-            timerProgress.style.transition = 'transform 30s linear';
-            timerProgress.style.transform = 'scaleX(0)';
-            
-            timerInterval = setTimeout(() => {
-                if (isTimerRunning) {
-                    // Time's up - reveal answer
-                    const options = document.querySelectorAll('.option');
-                    const currentBhajan = bhajans[currentBhajanIndex];
-                    
-                    options.forEach(button => {
-                        button.style.pointerEvents = 'none';
-                        if (button.textContent === currentBhajan.title) {
-                            button.classList.add('correct');
-                        }
-                    });
-                    
-                    nextRoundBtn.style.display = 'block';
-                    isTimerRunning = false;
-                }
-            }, 30000);
-        }
-
-        function pauseTimer() {
-            if (!isTimerRunning) return;
-            
-            isTimerRunning = false;
-            clearTimeout(timerInterval);
-            
-            // Calculate remaining time based on animation progress
-            const computedStyle = window.getComputedStyle(timerProgress);
-            const matrix = new WebKitCSSMatrix(computedStyle.transform);
-            const scaleX = matrix.m11;
-            timeLeft = Math.round(scaleX * 30);
-            
-            // Pause the animation
-            timerProgress.style.transition = 'none';
-        }
-
-        function resetTimer() {
-            pauseTimer();
-            timeLeft = 30;
-            updateTimerDisplay();
-        }
-
-        function updateTimerDisplay() {
-            // For visual display only, the animation handles the actual timing
-            timerProgress.style.transition = 'none';
-            timerProgress.style.transform = 'scaleX(1)';
         }
 
         // End the game
@@ -670,6 +563,10 @@
             if (audio) {
                 audio.pause();
                 audio.currentTime = 0;
+            }
+            if (vocalAudio) {
+                vocalAudio.pause();
+                vocalAudio.currentTime = 0;
             }
         }
 
@@ -701,10 +598,6 @@
         nextBtn.addEventListener('click', loadNewBhajan);
 
         nextRoundBtn.addEventListener('click', loadNewBhajan);
-
-        startTimerBtn.addEventListener('click', startTimer);
-
-        pauseTimerBtn.addEventListener('click', pauseTimer);
 
         restartBtn.addEventListener('click', initGame);
 
