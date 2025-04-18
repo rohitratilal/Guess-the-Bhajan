@@ -237,6 +237,15 @@
             margin-bottom: 10px;
         }
 
+        .vocal-controls {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 15px;
+            margin: 20px 0;
+            display: none;
+        }
+
         /* Intro card styles */
         .intro-card {
             position: fixed;
@@ -287,6 +296,14 @@
             pointer-events: none;
             z-index: 999;
         }
+
+        .vocal-label {
+            text-align: center;
+            color: var(--primary);
+            font-weight: bold;
+            margin-top: 10px;
+            display: none;
+        }
     </style>
 </head>
 <body>
@@ -319,6 +336,11 @@
                 <div class="progress-container" id="progress-container">
                     <div class="progress" id="progress"></div>
                 </div>
+
+                <div class="vocal-label" id="vocal-label">Now playing vocal version</div>
+                <div class="vocal-controls" id="vocal-controls">
+                    <button class="btn btn-primary" id="vocal-play-btn">❚❚</button>
+                </div>
             </div>
             
             <div class="card">
@@ -339,7 +361,7 @@
 
     <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.5.1/dist/confetti.browser.min.js"></script>
     <script>
-        // Bhajan database with more Gujarati bhajans
+        // Bhajan database
         const bhajans = [
   {
     title: "Hal Tane Hal Saurashtra Batavu",
@@ -378,7 +400,6 @@
   }
 ];
 
-
         // Additional Gujarati bhajans for options
         const gujaratiBhajans = [
             "Hal Tane Hal Saurashtra Batavu",
@@ -390,17 +411,7 @@
             "Prabhu Ji Tum Chandan Hum Pani",
             "Mane Makan Ni Murti",
             "Ame Bhagat Tari Re",
-            "Shiv Shankar Mahadev",
-            "Bolo Jai Jai Ram Krishna Hari",
-            "Krishna Vandana",
-            "Jay Jay Santoshi Mata",
-            "Jai Ambe Gauri",
-            "Shri Ram Chandra Kripalu Bhajman",
-            "Shri Krishna Govind Hare Murari",
-            "Radhe Radhe Barsane Wali Radhe",
-            "Jai Ganesh Deva",
-            "Om Jai Jagdish Hare",
-            "Shyam Teri Bansi Pukare"
+            "Shiv Shankar Mahadev"
         ];
 
         // Game variables
@@ -408,6 +419,7 @@
         let audio;
         let vocalAudio;
         let isPlaying = false;
+        let isVocalPlaying = false;
         let gameOver = false;
         let usedBhajanIndices = [];
         let currentRound = 1;
@@ -418,9 +430,7 @@
         const playBtn = document.getElementById('play-btn');
         const prevBtn = document.getElementById('prev-btn');
         const nextBtn = document.getElementById('next-btn');
-        const progressContainer = document.getElementById('progress-container');
         const progress = document.getElementById('progress');
-        const coverArt = document.getElementById('cover-art');
         const optionsContainer = document.getElementById('options-container');
         const nextRoundBtn = document.getElementById('next-round-btn');
         const gameScreen = document.getElementById('game-screen');
@@ -428,6 +438,9 @@
         const restartBtn = document.getElementById('restart-btn');
         const introCard = document.getElementById('intro-card');
         const roundCounter = document.getElementById('round-counter');
+        const vocalControls = document.getElementById('vocal-controls');
+        const vocalPlayBtn = document.getElementById('vocal-play-btn');
+        const vocalLabel = document.getElementById('vocal-label');
 
         // Show intro card and then fade it out
         function showIntro() {
@@ -438,7 +451,7 @@
                     gameScreen.style.display = 'block';
                     initGame();
                 }, 1000);
-            }, 2000); // Show intro for 2 seconds before fading
+            }, 2000);
         }
 
         // Initialize game
@@ -463,6 +476,8 @@
             canSelectAnswer = false;
             correctAnswerSelected = false;
             nextRoundBtn.style.display = 'none';
+            vocalControls.style.display = 'none';
+            vocalLabel.style.display = 'none';
             
             // Find a bhajan that hasn't been used yet
             let availableBhajans = bhajans.filter((_, index) => !usedBhajanIndices.includes(index));
@@ -565,12 +580,6 @@
                     button.classList.add('wrong');
                 }
             });
-            
-            // Only reveal correct answer if it was selected
-            if (selectedOption !== correctAnswer && correctButton) {
-                // Don't reveal correct answer yet
-                // User needs to select the correct answer to see it
-            }
         }
 
         // Play vocal version of the bhajan
@@ -581,15 +590,19 @@
             }
             
             vocalAudio = new Audio(vocalUrl);
+            isVocalPlaying = true;
+            vocalPlayBtn.textContent = '❚❚';
+            vocalControls.style.display = 'flex';
+            vocalLabel.style.display = 'block';
             vocalAudio.play();
             
             vocalAudio.addEventListener('ended', () => {
-                // When vocal ends, enable next round after a delay
+                isVocalPlaying = false;
+                vocalPlayBtn.textContent = '▶';
+                // When vocal ends, show next button after delay
                 setTimeout(() => {
-                    currentRound++;
-                    updateRoundCounter();
-                    loadNewBhajan();
-                }, 2000); // 2 second delay after vocal ends
+                    nextRoundBtn.style.display = 'block';
+                }, 2000);
             });
         }
 
@@ -607,22 +620,6 @@
             if (audio) {
                 const progressPercent = (audio.currentTime / audio.duration) * 100;
                 progress.style.width = `${progressPercent}%`;
-            }
-        }
-
-        // End the game (not really used since we have unlimited rounds now)
-        function endGame() {
-            gameOver = true;
-            gameScreen.style.display = 'none';
-            gameOverScreen.style.display = 'block';
-            
-            if (audio) {
-                audio.pause();
-                audio.currentTime = 0;
-            }
-            if (vocalAudio) {
-                vocalAudio.pause();
-                vocalAudio.currentTime = 0;
             }
         }
 
@@ -652,6 +649,20 @@
         });
 
         nextBtn.addEventListener('click', loadNewBhajan);
+
+        vocalPlayBtn.addEventListener('click', () => {
+            if (!vocalAudio) return;
+            
+            if (isVocalPlaying) {
+                vocalAudio.pause();
+                isVocalPlaying = false;
+                vocalPlayBtn.textContent = '▶';
+            } else {
+                vocalAudio.play();
+                isVocalPlaying = true;
+                vocalPlayBtn.textContent = '❚❚';
+            }
+        });
 
         nextRoundBtn.addEventListener('click', () => {
             currentRound++;
