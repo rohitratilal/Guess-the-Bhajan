@@ -5,6 +5,35 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Guess the Bhajan</title>
     <style>
+        /* Peridot Devanagari font - will need actual font file for exact match */
+@font-face {
+    font-family: 'Peridot Devanagari';
+    src: local('PeridotPE-Black'), 
+         url('path/to/PeridotPE-Black.woff2') format('woff2');
+    font-weight: 900;
+    font-style: normal;
+}
+
+.intro-title-container {
+    text-align: center;
+}
+
+.intro-title-line {
+    font-family: 'Peridot Devanagari', 'Noto Sans Devanagari', sans-serif;
+    font-weight: 900;
+    font-size: 4rem;
+    color: var(--primary);
+    margin: 0;
+    line-height: 1.2;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+}
+
+@media (max-width: 400px) {
+    .intro-title-line {
+        font-size: 2.8rem;
+    }
+}
         :root {
             --primary: #4a6fa5;
             --secondary: #ff6b6b;
@@ -248,33 +277,32 @@
 
         /* Intro card styles */
         .intro-card {
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background-color: rgba(255, 255, 255, 0.95);
-            display: flex;
-            flex-direction: column;
-            justify-content: center;
-            align-items: center;
-            z-index: 1000;
-            transition: opacity 1s ease-out;
-        }
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(255, 255, 255, 0.95);
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    z-index: 1000;
+    transition: opacity 1s ease-out; /* Make sure this exists */
+}
+
         
         .intro-title {
-            font-size: 2.5rem;
-            color: var(--primary);
-            margin-bottom: 20px;
-            text-shadow: 2px 2px 4px rgba(0,0,0,0.1);
-            animation: pulse 2s infinite;
-        }
-        
-        @keyframes pulse {
-            0% { transform: scale(1); }
-            50% { transform: scale(1.05); }
-            100% { transform: scale(1); }
-        }
+    font-size: 2.5rem;
+    animation: pulse 2s infinite;
+    /* Remove any other intro-title specific styles */
+}
+
+@keyframes pulse {
+    0% { transform: scale(1); }
+    50% { transform: scale(1.05); }
+    100% { transform: scale(1); }
+}
         
         @media (max-width: 400px) {
             .cover-art {
@@ -311,7 +339,10 @@
     
     <!-- Intro Card -->
     <div class="intro-card" id="intro-card">
-        <h1 class="intro-title">Guess the Bhajan</h1>
+        <div class="intro-title-container">
+            <h1 class="intro-title-line">GUESS THE</h1>
+            <h1 class="intro-title-line">BHAJAN</h1>
+        </div>
     </div>
 
     <div class="container">
@@ -630,12 +661,23 @@ const gujaratiBhajans = [
             audio = new Audio(currentBhajan.instrumental);
             
             // Set up audio event listeners
-            audio.addEventListener('timeupdate', updateProgress);
-            audio.addEventListener('ended', () => {
-                isPlaying = false;
-                playBtn.textContent = '▶';
-                canSelectAnswer = true; // Allow answer selection only after song ends
-            });
+            audio.addEventListener('play', () => {
+    isPlaying = true;
+    playBtn.textContent = '❚❚'; // Ensure pause icon shows when playing
+    canSelectAnswer = false;
+});
+
+audio.addEventListener('pause', () => {
+    isPlaying = false;
+    playBtn.textContent = '▶'; // Ensure play icon shows when paused
+    canSelectAnswer = true;
+});
+
+audio.addEventListener('ended', () => {
+    isPlaying = false;
+    playBtn.textContent = '▶'; // Show play icon when song ends
+    canSelectAnswer = true;
+});
             
             // Reset play button
             isPlaying = false;
@@ -683,53 +725,43 @@ const gujaratiBhajans = [
 
         // Check if selected answer is correct
         function checkAnswer(selectedOption, correctAnswer, vocalUrl) {
-            if (gameOver || !canSelectAnswer || correctAnswerSelected) return;
-            
-            const options = document.querySelectorAll('.option');
-            let correctButton;
-            
-            options.forEach(button => {
-                const optionText = button.querySelector('span:not(.option-prefix)').textContent;
-                
-                if (optionText === correctAnswer) {
-                    correctButton = button;
-                    if (selectedOption === correctAnswer) {
-                        button.classList.add('correct');
-                        correctAnswerSelected = true;
-                        // Play vocal version if correct
-                        playVocalVersion(vocalUrl);
-                        // Show confetti
-                        triggerConfetti();
-                    }
-                } else if (optionText === selectedOption && selectedOption !== correctAnswer) {
-                    button.classList.add('wrong');
-                }
-            });
+    // Only allow answering when not playing AND (paused OR ended)
+    if (gameOver || correctAnswerSelected || isPlaying) return;
+    
+    const options = document.querySelectorAll('.option');
+    let correctButton;
+    
+    options.forEach(button => {
+        const optionText = button.querySelector('span:not(.option-prefix)').textContent;
+        
+        if (optionText === correctAnswer) {
+            correctButton = button;
+            if (selectedOption === correctAnswer) {
+                button.classList.add('correct');
+                correctAnswerSelected = true;
+                triggerConfetti();
+                setupVocalVersion(vocalUrl);
+                nextRoundBtn.style.display = 'block';
+            }
+        } else if (optionText === selectedOption && selectedOption !== correctAnswer) {
+            button.classList.add('wrong');
         }
+    });
+}
 
         // Play vocal version of the bhajan
-        function playVocalVersion(vocalUrl) {
-            if (vocalAudio) {
-                vocalAudio.pause();
-                vocalAudio.currentTime = 0;
-            }
-            
-            vocalAudio = new Audio(vocalUrl);
-            isVocalPlaying = true;
-            vocalPlayBtn.textContent = '❚❚';
-            vocalControls.style.display = 'flex';
-            vocalLabel.style.display = 'block';
-            vocalAudio.play();
-            
-            vocalAudio.addEventListener('ended', () => {
-                isVocalPlaying = false;
-                vocalPlayBtn.textContent = '▶';
-                // When vocal ends, show next button after delay
-                setTimeout(() => {
-                    nextRoundBtn.style.display = 'block';
-                }, 2000);
-            });
-        }
+        function setupVocalVersion(vocalUrl) {
+    if (vocalAudio) {
+        vocalAudio.pause();
+        vocalAudio.currentTime = 0;
+    }
+    
+    vocalAudio = new Audio(vocalUrl);
+    isVocalPlaying = false; // Start in paused state
+    vocalPlayBtn.textContent = '▶';
+    vocalControls.style.display = 'flex';
+    vocalLabel.style.display = 'block';
+}
 
         // Trigger confetti effect
         function triggerConfetti() {
@@ -750,18 +782,16 @@ const gujaratiBhajans = [
 
         // Event listeners
         playBtn.addEventListener('click', () => {
-            if (!audio) return;
-            
-            if (isPlaying) {
-                audio.pause();
-                isPlaying = false;
-                playBtn.textContent = '▶';
-            } else {
-                audio.play();
-                isPlaying = true;
-                playBtn.textContent = '❚❚';
-            }
-        });
+    if (!audio) return;
+    
+    if (isPlaying) {
+        audio.pause();
+        playBtn.textContent = '▶'; // Show play icon when paused
+    } else {
+        audio.play();
+        playBtn.textContent = '❚❚'; // Show pause icon when playing
+    }
+});
 
         prevBtn.addEventListener('click', () => {
             if (!audio) return;
@@ -790,10 +820,15 @@ const gujaratiBhajans = [
         });
 
         nextRoundBtn.addEventListener('click', () => {
-            currentRound++;
-            updateRoundCounter();
-            loadNewBhajan();
-        });
+    if (vocalAudio) {
+        vocalAudio.pause();
+        vocalAudio.currentTime = 0;
+        isVocalPlaying = false;
+    }
+    currentRound++;
+    updateRoundCounter();
+    loadNewBhajan();
+});
 
         restartBtn.addEventListener('click', initGame);
 
