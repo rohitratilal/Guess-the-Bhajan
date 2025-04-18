@@ -149,28 +149,40 @@
             transition: width 0.1s linear;
         }
         
-        .timer {
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            gap: 10px;
-            margin: 15px 0;
-            font-size: 14px;
+        .timer-container {
+            width: 100%;
+            height: 6px;
+            background-color: #e9ecef;
+            border-radius: 3px;
+            margin: 20px 0;
+            overflow: hidden;
         }
         
-        .timer-circle {
-            width: 40px;
-            height: 40px;
-            border-radius: 50%;
-            border: 3px solid var(--primary);
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-weight: 600;
+        .timer-progress {
+            height: 100%;
+            background-color: var(--primary);
+            width: 100%;
+            border-radius: 3px;
+            transform-origin: left;
+            transform: scaleX(1);
+            transition: transform 1s linear;
         }
         
-        .timer-text {
-            color: var(--muted);
+        .timer-controls {
+            display: flex;
+            justify-content: center;
+            gap: 15px;
+            margin-bottom: 15px;
+        }
+        
+        .timer-btn {
+            padding: 6px 12px;
+            border-radius: 20px;
+            background-color: var(--primary);
+            color: white;
+            font-size: 12px;
+            border: none;
+            cursor: pointer;
         }
         
         .options {
@@ -207,40 +219,6 @@
             border-color: var(--secondary);
         }
         
-        .score-container {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-top: 10px;
-        }
-        
-        .score {
-            font-weight: 700;
-            color: var(--primary);
-        }
-        
-        .hint-container {
-            margin-top: 15px;
-            padding: 12px 15px;
-            background-color: #f8f9fa;
-            border-radius: 8px;
-            font-size: 14px;
-            color: var(--muted);
-            display: none;
-        }
-        
-        .hint-btn {
-            background: none;
-            border: none;
-            color: var(--primary);
-            font-size: 13px;
-            font-weight: 500;
-            text-decoration: underline;
-            cursor: pointer;
-            margin-top: 10px;
-            display: inline-block;
-        }
-        
         .next-btn {
             width: 100%;
             padding: 14px;
@@ -268,13 +246,6 @@
             color: var(--primary);
         }
         
-        .final-score {
-            font-size: 48px;
-            font-weight: 700;
-            color: var(--primary);
-            margin: 20px 0;
-        }
-        
         .restart-btn {
             width: 100%;
             padding: 16px;
@@ -286,26 +257,65 @@
             margin-top: 20px;
             cursor: pointer;
         }
+
+        /* Intro card styles */
+        .intro-card {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(255, 255, 255, 0.95);
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            z-index: 1000;
+            transition: opacity 1s ease-out;
+        }
+        
+        .intro-title {
+            font-size: 2.5rem;
+            color: var(--primary);
+            margin-bottom: 20px;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.1);
+            animation: pulse 2s infinite;
+        }
+        
+        @keyframes pulse {
+            0% { transform: scale(1); }
+            50% { transform: scale(1.05); }
+            100% { transform: scale(1); }
+        }
         
         @media (max-width: 400px) {
             .cover-art {
                 width: 160px;
                 height: 160px;
             }
+            
+            .intro-title {
+                font-size: 2rem;
+            }
         }
     </style>
 </head>
 <body>
+    <!-- Intro Card -->
+    <div class="intro-card" id="intro-card">
+        <h1 class="intro-title">Guess the Bhajan</h1>
+    </div>
+
     <div class="container">
         <header>
             <h1>Guess the Bhajan</h1>
             <div class="subtitle">Listen to the instrumental and guess the bhajan</div>
         </header>
         
-        <div id="game-screen">
+        <div id="game-screen" style="display: none;">
             <div class="card">
                 <div class="cover-art" id="cover-art">
-                    <div class="icon">🎵</div>
+                    <img src="https://raw.githubusercontent.com/rohitratilal/Guess-the-Bhajan/main/Thumbnail/Whatsapp DP.jpg" alt="Bhajan Cover">
                 </div>
                 
                 <div class="player-controls">
@@ -318,9 +328,13 @@
                     <div class="progress" id="progress"></div>
                 </div>
                 
-                <div class="timer">
-                    <div class="timer-circle" id="timer">30</div>
-                    <div class="timer-text">seconds remaining</div>
+                <div class="timer-controls">
+                    <button class="timer-btn" id="start-timer-btn">Start Timer</button>
+                    <button class="timer-btn" id="pause-timer-btn">Pause Timer</button>
+                </div>
+                
+                <div class="timer-container">
+                    <div class="timer-progress" id="timer-progress"></div>
                 </div>
             </div>
             
@@ -329,76 +343,105 @@
                     <!-- Options will be inserted here by JavaScript -->
                 </div>
                 
-                <button class="hint-btn" id="hint-btn">Need a hint?</button>
-                <div class="hint-container" id="hint-text"></div>
-                
                 <button class="next-btn" id="next-round-btn">Next Bhajan</button>
-            </div>
-            
-            <div class="score-container">
-                <span>Score</span>
-                <span class="score" id="score">0</span>
             </div>
         </div>
         
         <div id="game-over-screen" class="game-over">
             <h2>Game Over!</h2>
-            <div class="final-score" id="final-score">0</div>
             <p>Thanks for playing Guess the Bhajan!</p>
             <button class="restart-btn" id="restart-btn">Play Again</button>
         </div>
     </div>
 
     <script>
-        // Bhajan database
+        // Bhajan database with more Gujarati bhajans
         const bhajans = [
-            {
-                title: "Hal Tane Hal Saurashtra Batavu",
-                instrumental: "https://raw.githubusercontent.com/rohitratilal/Guess-the-Bhajan/main/Instrument/Hal Tane Hal Saurashtra Batavu _.mp3",
-                vocal: "https://raw.githubusercontent.com/rohitratilal/Guess-the-Bhajan/main/Vocal/Hal Tane Hal Saurashtra Batavu.mp3",
-                cover: "https://example.com/images/vaishnav-jan-to.jpg",
-                hint: "This bhajan was a favorite of Mahatma Gandhi"
-            },
-            {
-                title: "Jai Jalaram Jai Jalaram",
-                instrumental: "https://example.com/audio/jai-jalaram-instrumental.mp3",
-                vocal: "https://example.com/audio/jai-jalaram-vocal.mp3",
-                cover: "https://example.com/images/jai-jalaram.jpg",
-                hint: "Dedicated to Saint Jalaram Bapa"
-            },
-            {
-                title: "Aavo Padharo Mhare Des",
-                instrumental: "https://example.com/audio/aavo-padharo-instrumental.mp3",
-                vocal: "https://example.com/audio/aavo-padharo-vocal.mp3",
-                cover: "https://example.com/images/aavo-padharo.jpg",
-                hint: "Welcoming song from Gujarat"
-            },
-            {
-                title: "Tara Vina Shyam Na Aave",
-                instrumental: "https://example.com/audio/tara-vina-shyam-instrumental.mp3",
-                vocal: "https://example.com/audio/tara-vina-shyam-vocal.mp3",
-                cover: "https://example.com/images/tara-vina-shyam.jpg",
-                hint: "Devotional song about Krishna"
-            },
-            {
-                title: "Mor Bani Thangat Kare",
-                instrumental: "https://example.com/audio/mor-bani-instrumental.mp3",
-                vocal: "https://example.com/audio/mor-bani-vocal.mp3",
-                cover: "https://example.com/images/mor-bani.jpg",
-                hint: "Popular garba devotional song"
-            }
+  {
+    title: "Hal Tane Hal Saurashtra Batavu",
+    instrumental: "https://raw.githubusercontent.com/rohitratilal/Guess-the-Bhajan/main/Instrument/Hal Tane Hal Saurashtra Batavu _.mp3",
+    vocal: "https://raw.githubusercontent.com/rohitratilal/Guess-the-Bhajan/main/Vocal/Hal Tane Hal Saurashtra Batavu.mp3"
+  },
+  {
+    title: "Jagma Motu Nam Che Jogi Jalaram Che",
+    instrumental: "https://raw.githubusercontent.com/rohitratilal/Guess-the-Bhajan/main/Instrument/Jagma Motu Nam Che Jogi Jalaram Che _.mp3",
+    vocal: "https://raw.githubusercontent.com/rohitratilal/Guess-the-Bhajan/main/Vocal/Jagma Motu Nam Che Jogi Jalaram Che.mp3"
+  },
+  {
+    title: "Hari Tu Gadu Maru Kya Lai Jay",
+    instrumental: "https://raw.githubusercontent.com/rohitratilal/Guess-the-Bhajan/main/Instrument/Hari Tu Gadu Maru Kya Lai Jay _.mp3",
+    vocal: "https://raw.githubusercontent.com/rohitratilal/Guess-the-Bhajan/main/Vocal/Hari Tu Gadu Maru Kya Lai Jay.mp3"
+  },
+  {
+    title: "TU RANGAI JANE RANG MA",
+    instrumental: "https://raw.githubusercontent.com/rohitratilal/Guess-the-Bhajan/main/Instrument/TU RANGAI JANE RANG MA _.mp3",
+    vocal: "https://raw.githubusercontent.com/rohitratilal/Guess-the-Bhajan/main/Vocal/TU RANGAI JANE RANG MA.mp3"
+  },
+  {
+    title: "Helo Maro Sambhlo Ranuja",
+    instrumental: "https://raw.githubusercontent.com/rohitratilal/Guess-the-Bhajan/main/Instrument/Helo Maro Sambhlo Ranuja_30Secs _.mp3",
+    vocal: "https://raw.githubusercontent.com/rohitratilal/Guess-the-Bhajan/main/Vocal/Helo Maro Sambhlo Ranuja_30Secs.mp3"
+  },
+  {
+    title: "Karmano Sangathi Rana Maru Koi Nathi",
+    instrumental: "https://raw.githubusercontent.com/rohitratilal/Guess-the-Bhajan/main/Instrument/Karmano Sangathi Rana Maru Koi Nathi_Full song _.mp3",
+    vocal: "https://raw.githubusercontent.com/rohitratilal/Guess-the-Bhajan/main/Vocal/Karmano Sangathi Rana Maru Koi Nathi_Full song.mp3"
+  },
+  {
+    title: "Jiv Shane Fare Chhe Guman Ma",
+    instrumental: "https://raw.githubusercontent.com/rohitratilal/Guess-the-Bhajan/main/Instrument/Jiv Shane Fare Chhe Guman Ma _ full song _.mp3",
+    vocal: "https://raw.githubusercontent.com/rohitratilal/Guess-the-Bhajan/main/Vocal/Jiv Shane Fare Chhe Guman Ma _ full song.mp3"
+  },
+  {
+    title: "Helo Maro Sambhlo Ranuja",
+    instrumental: "https://raw.githubusercontent.com/rohitratilal/Guess-the-Bhajan/main/Instrument/Helo Maro Sambhlo Ranuja_17 secs _.mp3",
+    vocal: "https://raw.githubusercontent.com/rohitratilal/Guess-the-Bhajan/main/Vocal/Helo Maro Sambhlo Ranuja_17 secs.mp3"
+  },
+  {
+    title: "Karmano Sangathi Rana Maru Koi Nathi",
+    instrumental: "https://raw.githubusercontent.com/rohitratilal/Guess-the-Bhajan/main/Instrument/Karmano Sangathi Rana Maru Koi Nathi __17 secs _.mp3",
+    vocal: "https://raw.githubusercontent.com/rohitratilal/Guess-the-Bhajan/main/Vocal/Karmano Sangathi Rana Maru Koi Nathi __17 secs.mp3"
+  },
+  {
+    title: "Jiv Shane Fare Chhe Guman Ma",
+    instrumental: "https://raw.githubusercontent.com/rohitratilal/Guess-the-Bhajan/main/Instrument/Jiv Shane Fare Chhe Guman Ma_16sec _.mp3",
+    vocal: "https://raw.githubusercontent.com/rohitratilal/Guess-the-Bhajan/main/Vocal/Jiv Shane Fare Chhe Guman Ma_16sec.mp3"
+  }
+];
+
+        // Additional Gujarati bhajans for options
+        const gujaratiBhajans = [
+            "Hal Tane Hal Saurashtra Batavu",
+            "Jai Jalaram Jai Jalaram",
+            "Aavo Padharo Mhare Des",
+            "Tara Vina Shyam Na Aave",
+            "Mor Bani Thangat Kare",
+            "Vaishnav Jan To",
+            "Prabhu Ji Tum Chandan Hum Pani",
+            "Mane Makan Ni Murti",
+            "Ame Bhagat Tari Re",
+            "Shiv Shankar Mahadev",
+            "Bolo Jai Jai Ram Krishna Hari",
+            "Krishna Vandana",
+            "Jay Jay Santoshi Mata",
+            "Jai Ambe Gauri",
+            "Shri Ram Chandra Kripalu Bhajman",
+            "Shri Krishna Govind Hare Murari",
+            "Radhe Radhe Barsane Wali Radhe",
+            "Jai Ganesh Deva",
+            "Om Jai Jagdish Hare",
+            "Shyam Teri Bansi Pukare"
         ];
 
         // Game variables
         let currentBhajanIndex;
-        let score = 0;
         let audio;
         let isPlaying = false;
         let gameOver = false;
         let usedBhajanIndices = [];
-        let timer;
+        let timerInterval;
         let timeLeft = 30;
-        let isAnswerCorrect = false;
+        let isTimerRunning = false;
         const totalRounds = 5;
         const clipDuration = 10; // 10 second clip
         const rewardDuration = 30; // 30 second reward
@@ -411,22 +454,31 @@
         const progress = document.getElementById('progress');
         const coverArt = document.getElementById('cover-art');
         const optionsContainer = document.getElementById('options-container');
-        const scoreEl = document.getElementById('score');
-        const hintBtn = document.getElementById('hint-btn');
-        const hintText = document.getElementById('hint-text');
-        const timerEl = document.getElementById('timer');
         const nextRoundBtn = document.getElementById('next-round-btn');
         const gameScreen = document.getElementById('game-screen');
         const gameOverScreen = document.getElementById('game-over-screen');
-        const finalScoreEl = document.getElementById('final-score');
         const restartBtn = document.getElementById('restart-btn');
+        const introCard = document.getElementById('intro-card');
+        const startTimerBtn = document.getElementById('start-timer-btn');
+        const pauseTimerBtn = document.getElementById('pause-timer-btn');
+        const timerProgress = document.getElementById('timer-progress');
+
+        // Show intro card and then fade it out
+        function showIntro() {
+            setTimeout(() => {
+                introCard.style.opacity = '0';
+                setTimeout(() => {
+                    introCard.style.display = 'none';
+                    gameScreen.style.display = 'block';
+                    initGame();
+                }, 1000);
+            }, 2000); // Show intro for 2 seconds before fading
+        }
 
         // Initialize game
         function initGame() {
-            score = 0;
             gameOver = false;
             usedBhajanIndices = [];
-            updateScore();
             gameScreen.style.display = 'block';
             gameOverScreen.style.display = 'none';
             loadNewBhajan();
@@ -434,9 +486,8 @@
 
         // Load a new bhajan for guessing
         function loadNewBhajan() {
-            isAnswerCorrect = false;
-            hintText.style.display = 'none';
-            nextRoundBtn.style.display = 'none';
+            // Reset timer
+            resetTimer();
             
             // If we've played enough rounds, end game
             if (usedBhajanIndices.length >= totalRounds) {
@@ -470,18 +521,27 @@
             // For demo purposes, we'll simulate audio
             audio = new Audio(currentBhajan.instrumental);
             
-            // Set cover art
-            coverArt.innerHTML = `<img src="${currentBhajan.cover}" alt="Cover Art" onerror="this.parentNode.innerHTML='<div class=\\'icon\\'>🎵</div>'">`;
+            // Set up audio event listeners
+            audio.addEventListener('timeupdate', updateProgress);
+            audio.addEventListener('ended', () => {
+                isPlaying = false;
+                playBtn.textContent = '▶';
+            });
+            
+            // Reset play button
+            isPlaying = false;
+            playBtn.textContent = '▶';
             
             // Generate options (1 correct + 3 random incorrect)
             const options = [currentBhajan.title];
-            while (options.length < 4) {
-                const randomIndex = Math.floor(Math.random() * bhajans.length);
-                const randomBhajan = bhajans[randomIndex].title;
-                if (!options.includes(randomBhajan)) {
-                    options.push(randomBhajan);
-                }
-            }
+            
+            // Get random incorrect options from the larger Gujarati bhajans list
+            const incorrectOptions = gujaratiBhajans
+                .filter(title => title !== currentBhajan.title)
+                .sort(() => 0.5 - Math.random())
+                .slice(0, 3);
+            
+            options.push(...incorrectOptions);
             
             // Shuffle options
             options.sort(() => Math.random() - 0.5);
@@ -496,67 +556,17 @@
                 optionsContainer.appendChild(button);
             });
             
-            // Set up audio event listeners
-            audio.addEventListener('timeupdate', updateProgress);
-            audio.addEventListener('ended', onClipEnded);
-            
-            // Reset play button
-            isPlaying = false;
-            playBtn.textContent = '▶';
-            
-            // Reset timer
-            resetTimer();
-            
-            // Play the 10-second clip automatically
-            playClip();
-        }
-
-        // Play the 10-second clip
-        function playClip() {
-            if (audio) {
-                audio.currentTime = 0;
-                audio.play();
-                isPlaying = true;
-                playBtn.textContent = '❚❚';
-                
-                // Automatically pause after 10 seconds
-                setTimeout(() => {
-                    if (audio && !isAnswerCorrect) {
-                        audio.pause();
-                        isPlaying = false;
-                        playBtn.textContent = '▶';
-                        startTimer();
-                    }
-                }, clipDuration * 1000);
-            }
-        }
-
-        // Play the full vocal version (30 seconds)
-        function playReward() {
-            if (audio) {
-                const currentBhajan = bhajans[currentBhajanIndex];
-                audio.src = currentBhajan.vocal;
-                audio.currentTime = 0;
-                audio.play();
-                isPlaying = true;
-                playBtn.textContent = '❚❚';
-                
-                // Automatically pause after 30 seconds
-                setTimeout(() => {
-                    if (audio) {
-                        audio.pause();
-                        isPlaying = false;
-                        playBtn.textContent = '▶';
-                    }
-                }, rewardDuration * 1000);
-            }
+            // Hide next button initially
+            nextRoundBtn.style.display = 'none';
         }
 
         // Check if selected answer is correct
         function checkAnswer(selectedOption, correctAnswer) {
-            if (gameOver || isAnswerCorrect) return;
+            if (gameOver) return;
             
-            clearInterval(timer);
+            // Stop timer
+            pauseTimer();
+            
             const options = document.querySelectorAll('.option');
             let correctButton;
             
@@ -566,12 +576,6 @@
                     correctButton = button;
                     if (selectedOption === correctAnswer) {
                         button.classList.add('correct');
-                        score += 10;
-                        updateScore();
-                        isAnswerCorrect = true;
-                        
-                        // Play the full vocal version
-                        playReward();
                     }
                 } else if (button.textContent === selectedOption && selectedOption !== correctAnswer) {
                     button.classList.add('wrong');
@@ -587,11 +591,6 @@
             nextRoundBtn.style.display = 'block';
         }
 
-        // Update score display
-        function updateScore() {
-            scoreEl.textContent = score;
-        }
-
         // Update progress bar
         function updateProgress() {
             if (audio) {
@@ -600,28 +599,23 @@
             }
         }
 
-        // Handle clip ended
-        function onClipEnded() {
-            isPlaying = false;
-            playBtn.textContent = '▶';
-            
-            if (!isAnswerCorrect) {
-                startTimer();
-            }
-        }
-
         // Timer functions
         function startTimer() {
-            clearInterval(timer);
+            if (isTimerRunning) return;
+            
+            isTimerRunning = true;
             timeLeft = 30;
             updateTimerDisplay();
             
-            timer = setInterval(() => {
-                timeLeft--;
-                updateTimerDisplay();
-                
-                if (timeLeft <= 0) {
-                    clearInterval(timer);
+            // Reset the animation
+            timerProgress.style.transition = 'none';
+            timerProgress.style.transform = 'scaleX(1)';
+            void timerProgress.offsetWidth; // Trigger reflow
+            timerProgress.style.transition = 'transform 30s linear';
+            timerProgress.style.transform = 'scaleX(0)';
+            
+            timerInterval = setTimeout(() => {
+                if (isTimerRunning) {
                     // Time's up - reveal answer
                     const options = document.querySelectorAll('.option');
                     const currentBhajan = bhajans[currentBhajanIndex];
@@ -634,33 +628,42 @@
                     });
                     
                     nextRoundBtn.style.display = 'block';
+                    isTimerRunning = false;
                 }
-            }, 1000);
+            }, 30000);
+        }
+
+        function pauseTimer() {
+            if (!isTimerRunning) return;
+            
+            isTimerRunning = false;
+            clearTimeout(timerInterval);
+            
+            // Calculate remaining time based on animation progress
+            const computedStyle = window.getComputedStyle(timerProgress);
+            const matrix = new WebKitCSSMatrix(computedStyle.transform);
+            const scaleX = matrix.m11;
+            timeLeft = Math.round(scaleX * 30);
+            
+            // Pause the animation
+            timerProgress.style.transition = 'none';
         }
 
         function resetTimer() {
-            clearInterval(timer);
+            pauseTimer();
             timeLeft = 30;
             updateTimerDisplay();
         }
 
         function updateTimerDisplay() {
-            timerEl.textContent = timeLeft;
-            
-            // Change color when time is running out
-            if (timeLeft <= 10) {
-                timerEl.style.color = 'var(--secondary)';
-                timerEl.style.borderColor = 'var(--secondary)';
-            } else {
-                timerEl.style.color = 'var(--dark)';
-                timerEl.style.borderColor = 'var(--primary)';
-            }
+            // For visual display only, the animation handles the actual timing
+            timerProgress.style.transition = 'none';
+            timerProgress.style.transform = 'scaleX(1)';
         }
 
         // End the game
         function endGame() {
             gameOver = true;
-            finalScoreEl.textContent = score;
             gameScreen.style.display = 'none';
             gameOverScreen.style.display = 'block';
             
@@ -678,26 +681,10 @@
                 audio.pause();
                 isPlaying = false;
                 playBtn.textContent = '▶';
-                
-                // Pause timer if it's running
-                if (!isAnswerCorrect && timeLeft < 30) {
-                    clearInterval(timer);
-                }
             } else {
-                if (isAnswerCorrect) {
-                    // If answer was correct, we're playing the full version
-                    audio.play();
-                } else {
-                    // Otherwise replay the 10-second clip
-                    playClip();
-                }
+                audio.play();
                 isPlaying = true;
                 playBtn.textContent = '❚❚';
-                
-                // Resume timer if it was paused
-                if (!isAnswerCorrect && timeLeft < 30) {
-                    startTimer();
-                }
             }
         });
 
@@ -711,32 +698,18 @@
             }
         });
 
-        nextBtn.addEventListener('click', () => {
-            if (!isAnswerCorrect) {
-                // Skip the current bhajan
-                loadNewBhajan();
-            }
-        });
+        nextBtn.addEventListener('click', loadNewBhajan);
 
         nextRoundBtn.addEventListener('click', loadNewBhajan);
 
-        hintBtn.addEventListener('click', () => {
-            if (gameOver || !audio || isAnswerCorrect) return;
-            const currentBhajan = bhajans[currentBhajanIndex];
-            hintText.textContent = currentBhajan.hint;
-            hintText.style.display = 'block';
-            
-            // Deduct points for using hint
-            if (score >= 3) {
-                score -= 3;
-                updateScore();
-            }
-        });
+        startTimerBtn.addEventListener('click', startTimer);
+
+        pauseTimerBtn.addEventListener('click', pauseTimer);
 
         restartBtn.addEventListener('click', initGame);
 
-        // Start the game
-        initGame();
+        // Start with the intro
+        showIntro();
     </script>
 </body>
 </html>
