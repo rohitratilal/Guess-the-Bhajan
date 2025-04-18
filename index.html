@@ -160,10 +160,12 @@
             border-radius: 12px;
             background-color: white;
             border: 1px solid #e9ecef;
-            text-align: center;
+            text-align: left;
             cursor: pointer;
             transition: all 0.2s;
             font-weight: 500;
+            display: flex;
+            align-items: center;
         }
         
         .option:hover {
@@ -181,6 +183,12 @@
             background-color: var(--secondary);
             color: white;
             border-color: var(--secondary);
+        }
+        
+        .option-prefix {
+            font-weight: bold;
+            margin-right: 10px;
+            min-width: 20px;
         }
         
         .next-btn {
@@ -220,6 +228,13 @@
             font-weight: 600;
             margin-top: 20px;
             cursor: pointer;
+        }
+
+        .round-counter {
+            text-align: center;
+            color: var(--muted);
+            font-size: 14px;
+            margin-bottom: 10px;
         }
 
         /* Intro card styles */
@@ -262,9 +277,21 @@
                 font-size: 2rem;
             }
         }
+
+        canvas {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            z-index: 999;
+        }
     </style>
 </head>
 <body>
+    <canvas id="confetti-canvas"></canvas>
+    
     <!-- Intro Card -->
     <div class="intro-card" id="intro-card">
         <h1 class="intro-title">Guess the Bhajan</h1>
@@ -274,6 +301,7 @@
         <header>
             <h1>Guess the Bhajan</h1>
             <div class="subtitle">Listen to the instrumental and guess the bhajan</div>
+            <div class="round-counter" id="round-counter">Round 1</div>
         </header>
         
         <div id="game-screen" style="display: none;">
@@ -309,6 +337,7 @@
         </div>
     </div>
 
+    <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.5.1/dist/confetti.browser.min.js"></script>
     <script>
         // Bhajan database with more Gujarati bhajans
         const bhajans = [
@@ -349,6 +378,7 @@
   }
 ];
 
+
         // Additional Gujarati bhajans for options
         const gujaratiBhajans = [
             "Hal Tane Hal Saurashtra Batavu",
@@ -380,8 +410,9 @@
         let isPlaying = false;
         let gameOver = false;
         let usedBhajanIndices = [];
-        const totalRounds = 5;
+        let currentRound = 1;
         let canSelectAnswer = false;
+        let correctAnswerSelected = false;
 
         // DOM elements
         const playBtn = document.getElementById('play-btn');
@@ -396,6 +427,7 @@
         const gameOverScreen = document.getElementById('game-over-screen');
         const restartBtn = document.getElementById('restart-btn');
         const introCard = document.getElementById('intro-card');
+        const roundCounter = document.getElementById('round-counter');
 
         // Show intro card and then fade it out
         function showIntro() {
@@ -413,27 +445,30 @@
         function initGame() {
             gameOver = false;
             usedBhajanIndices = [];
+            currentRound = 1;
+            updateRoundCounter();
             gameScreen.style.display = 'block';
             gameOverScreen.style.display = 'none';
             loadNewBhajan();
+        }
+
+        // Update round counter display
+        function updateRoundCounter() {
+            roundCounter.textContent = `Round ${currentRound}`;
         }
 
         // Load a new bhajan for guessing
         function loadNewBhajan() {
             // Reset state
             canSelectAnswer = false;
-            
-            // If we've played enough rounds, end game
-            if (usedBhajanIndices.length >= totalRounds) {
-                endGame();
-                return;
-            }
+            correctAnswerSelected = false;
+            nextRoundBtn.style.display = 'none';
             
             // Find a bhajan that hasn't been used yet
             let availableBhajans = bhajans.filter((_, index) => !usedBhajanIndices.includes(index));
             
             if (availableBhajans.length === 0) {
-                // If all bhajans have been used, reset (for longer play)
+                // If all bhajans have been used, reset (for unlimited play)
                 usedBhajanIndices = [];
                 availableBhajans = bhajans;
             }
@@ -480,54 +515,62 @@
             // Shuffle options
             options.sort(() => Math.random() - 0.5);
             
-            // Display options
+            // Display options with A, B, C, D prefixes
             optionsContainer.innerHTML = '';
-            options.forEach(option => {
+            const prefixes = ['A', 'B', 'C', 'D'];
+            options.forEach((option, index) => {
                 const button = document.createElement('div');
                 button.className = 'option';
-                button.textContent = option;
+                
+                const prefixSpan = document.createElement('span');
+                prefixSpan.className = 'option-prefix';
+                prefixSpan.textContent = prefixes[index] + '.';
+                
+                const textSpan = document.createElement('span');
+                textSpan.textContent = option;
+                
+                button.appendChild(prefixSpan);
+                button.appendChild(textSpan);
+                
                 button.addEventListener('click', () => {
-                    if (canSelectAnswer) {
+                    if (canSelectAnswer && !correctAnswerSelected) {
                         checkAnswer(option, currentBhajan.title, currentBhajan.vocal);
                     }
                 });
                 optionsContainer.appendChild(button);
             });
-            
-            // Hide next button initially
-            nextRoundBtn.style.display = 'none';
         }
 
         // Check if selected answer is correct
         function checkAnswer(selectedOption, correctAnswer, vocalUrl) {
-            if (gameOver || !canSelectAnswer) return;
-            
-            canSelectAnswer = false; // Prevent further selections
+            if (gameOver || !canSelectAnswer || correctAnswerSelected) return;
             
             const options = document.querySelectorAll('.option');
             let correctButton;
             
             options.forEach(button => {
-                button.style.pointerEvents = 'none';
-                if (button.textContent === correctAnswer) {
+                const optionText = button.querySelector('span:not(.option-prefix)').textContent;
+                
+                if (optionText === correctAnswer) {
                     correctButton = button;
                     if (selectedOption === correctAnswer) {
                         button.classList.add('correct');
+                        correctAnswerSelected = true;
                         // Play vocal version if correct
                         playVocalVersion(vocalUrl);
+                        // Show confetti
+                        triggerConfetti();
                     }
-                } else if (button.textContent === selectedOption && selectedOption !== correctAnswer) {
+                } else if (optionText === selectedOption && selectedOption !== correctAnswer) {
                     button.classList.add('wrong');
                 }
             });
             
-            // Highlight correct answer if wrong was selected
+            // Only reveal correct answer if it was selected
             if (selectedOption !== correctAnswer && correctButton) {
-                correctButton.classList.add('correct');
+                // Don't reveal correct answer yet
+                // User needs to select the correct answer to see it
             }
-            
-            // Show next button
-            nextRoundBtn.style.display = 'block';
         }
 
         // Play vocal version of the bhajan
@@ -541,8 +584,21 @@
             vocalAudio.play();
             
             vocalAudio.addEventListener('ended', () => {
-                // When vocal ends, enable next round
-                nextRoundBtn.style.display = 'block';
+                // When vocal ends, enable next round after a delay
+                setTimeout(() => {
+                    currentRound++;
+                    updateRoundCounter();
+                    loadNewBhajan();
+                }, 2000); // 2 second delay after vocal ends
+            });
+        }
+
+        // Trigger confetti effect
+        function triggerConfetti() {
+            confetti({
+                particleCount: 150,
+                spread: 70,
+                origin: { y: 0.6 }
             });
         }
 
@@ -554,7 +610,7 @@
             }
         }
 
-        // End the game
+        // End the game (not really used since we have unlimited rounds now)
         function endGame() {
             gameOver = true;
             gameScreen.style.display = 'none';
@@ -597,7 +653,11 @@
 
         nextBtn.addEventListener('click', loadNewBhajan);
 
-        nextRoundBtn.addEventListener('click', loadNewBhajan);
+        nextRoundBtn.addEventListener('click', () => {
+            currentRound++;
+            updateRoundCounter();
+            loadNewBhajan();
+        });
 
         restartBtn.addEventListener('click', initGame);
 
